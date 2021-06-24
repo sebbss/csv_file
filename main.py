@@ -5,17 +5,19 @@ import datetime
 from flask import Flask
 import requests
 import json
+from flask_cors import CORS
 from flask_restful import Api, Resource, reqparse
 
 app = Flask(__name__)
 api = Api(app)
+CORS(app)
 
 invoice_args = reqparse.RequestParser()
 invoice_args.add_argument('index', type=int)
 
 class Home(Resource):
     def get(self):
-        return {'msg': 'we re here'}
+        return {'msg': "yoooooooooooo"}
 
 class GLCode(Resource):
 
@@ -43,46 +45,65 @@ class GLCode(Resource):
                 except:
                     my_dict['Company'] = ''
                 try:
-                    my_dict['Vendor Number'] = data['Fields'][11]['Item']
+                    my_dict['VendorNumVendorID'] = data['Fields'][11]['Item']
                 except:
-                    my_dict['Vendor Number'] = ''
+                    my_dict['VendorNumVendorID'] = ''
                 try:
-                    my_dict['Invoice Number'] = data['Fields'][13]['Item']
+                    my_dict['InvoiceNum'] = data['Fields'][13]['Item']
                 except:
-                    my_dict['Invoice Number'] = ''
+                    my_dict['InvoiceNum'] = ''
                 try:
-                    my_dict['Debit Memo'] = data['Fields'][32]['Item']
+                    my_dict['DebitMemo'] = data['Fields'][32]['Item']
                 except:
-                    my_dict['Debit Memo'] = ''
+                    my_dict['DebitMemo'] = ''
                 try:
                     date = int(re.findall(
                         "\d+", data['Fields'][33]['Item'])[0])
                     dateStr = datetime.datetime.fromtimestamp(date/1000)
-                    my_dict['Invoice Date'] = dateStr
+                    my_dict['InvoiceDate'] = dateStr
                 except:
-                    my_dict['Invoice Date'] = ''
+                    my_dict['InvoiceDate'] = ''
                 try:
-                    my_dict['Terms Code'] = data['Fields'][18]['Item']
+                    my_dict['TermsCode'] = data['Fields'][18]['Item']
                 except:
-                    my_dict['Terms Code'] = ''
+                    my_dict['TermsCode'] = ''
                 try:
                     date = int(re.findall(
                         "\d+", data['Fields'][34]['Item'])[0])
                     dateStr = datetime.datetime.fromtimestamp(date/1000)
-                    my_dict['Due Date'] = dateStr
+                    my_dict['DueDate'] = dateStr
                 except:
-                    my_dict['Due Date'] = ''
+                    my_dict['DueDate'] = ''
                 try:
                     date = int(re.findall(
                         "\d+", data['Fields'][38]['Item'])[0])
                     dateStr = datetime.datetime.fromtimestamp(date/1000)
-                    my_dict['Apply Date'] = dateStr
+                    my_dict['ApplyDate'] = dateStr
                 except:
-                    my_dict['Apply Date'] = ''
+                    my_dict['ApplyDate'] = ''
                 try:
                     my_dict['GL Account'] = item['ColumnValue'][2]['Item']
                 except:
                     my_dict['GL Account'] = ''
+                
+                my_dict['RateGrpCode'] = 'MAIN'
+                my_dict['APInvDtl#LineType'] = 'M'
+
+                try:
+                    my_dict['ScrDocInvoiceVendorAmt'] = 'total'
+                except:
+                    my_dict['ScrDocInvoiceVendorAmt'] = ''
+                
+                try:
+                    my_dict['APInvDtl#InvoiceLine'] = 'index of line item'
+                except:
+                    my_dict['APInvDtl#InvoiceLine'] = ''
+                my_dict['APInvDtl#InvoiceLine'] = 1
+                my_dict['APInvDtl#DocUnitCost'] = 500
+                my_dict['APInvDtl#PUM'] = 500
+                my_dict['APInvDtl#ScrVendorQty'] = 500
+                my_dict['APInvExpTGLC#GLAccount'] = "profileCenter, GL code, phaseCode"
+                my_dict['APInvExpTGLC#IsExternalCompany'] = 'intercompany'
 
                 if path.isfile('{}.csv'.format(f)):
                     my_file = open('{}.csv'.format(f), 'a')
@@ -110,4 +131,4 @@ api.add_resource(Home, '/home')
 
 
 if __name__ == '__main__':
-    app.run(debug=True, ssl_context=('cert.pem', 'key.pem'))
+    app.run(debug=True)
